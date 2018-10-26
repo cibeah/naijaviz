@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang='fr'>
+<head>
+  <meta charset="utf-8"/>
+  <title>A D3 chart</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="nigeria_style.css">
+</head>
+<body>
+  <h1> Nigeria : mapping a country's divides </h1>
+  <div id ='main '>
+    <div id='map' >
+    
+    </div>
+
+
+    <div id = 'side_bar'>
+      <div class = 'select'>
+        Choose a projection : 
+          <select id = "projectionSelect">
+            <option value="Mercator">Mercator</option>
+            <option value="Orthographic">Orthographic</option>
+          </select>
+        </div>
+
+        <div id='info'>
+          <h2 id='title' >
+          Percentage of Women aged 15 - 19 currently married 
+          </h2>
+
+          <h3 id='legend' >  </h3>
+          <h1 id='dataDisplay' >  </h1>
+          <h1 id='colorScaleLegend' >  </h1>
+      
+        </div>
+    </div>
+
+
+  </div>
+  
+ 
+</body>
+
+<footer id='footer' >  
+
+  Source : Nigerian Bureau of Statistics, 2007 
+  </br>
+  https://github.com/cibeah 
+
+</footer>
+
+  <script>
+
+    var projectionNames = ['Mercator','Orthographic']
+
+    var selecta = document.getElementById("projectionSelect");
+    var mapCanvas = document.getElementById('map');
+    var legendCanvas = document.getElementById('legend');
+    var dataDisplayCanvas = document.getElementById('dataDisplay');
+
+    selecta.addEventListener("change", function(){
+        var projectionType = projectionNames[this.selectedIndex] 
+        mapCanvas.innerHTML =  "";
+
+
+
+        var  { width, height, svg, projectionFunction } = geoProjection(projectionType);
+        var canvas = svg.append('g');
+
+        var projection = projectionFunction
+                  .scale( 20000 )
+                  .rotate( [30.057,0] )
+                  .center( [-17.21, 4.02])
+                  .translate( [width*3.5,height*6] );
+
+        
+
+        var geoPath = d3.geoPath()
+                        .projection(projection);
+
+
+        var data = d3.csv('data/nigeria_early_marriage.csv', function(m){
+                  return {
+                    name : m.region,
+                    value : parseInt(m.Value)
+                  }
+                })
+
+        var geo = d3.json('data/nigeria_regions.json', ( d ) => d)
+
+
+        return Promise
+          .all([data,geo])
+          .then( ( [data,geo] )=>{
+            console.log(data);
+
+            var mapValues = new Map();
+
+            data.forEach( (entry) => {
+              mapValues.set(entry.name , entry.value)
+            })
+
+            console.log(mapValues);
+            
+
+            var states = geo.features.map( (el) => el.properties.ID);
+
+            // Add the the data values in the features : 
+
+            geo.features.forEach( (feature) => {
+              console.log(feature.properties);
+
+              if ( feature.properties.ID == 'Federal Capital Territory' ){
+                feature.properties.early_marriage = mapValues.get('Abuja');  
+              } else {
+              feature.properties.early_marriage = mapValues.get(feature.properties.ID);
+              }
+            });
+
+            var selection = canvas.selectAll( "path" )
+                                  .data(geo.features );
+
+            console.log(selection);
+
+            selection
+            .enter()
+            .append('path')
+            .attr('d', geoPath)
+            .attr('fill', fillColor)
+            .merge(selection)
+            .attr('title', function(d,i){
+              return states[i]
+            })
+            .on('mouseover', function(d,i){
+              legendCanvas.innerHTML  = states[i]
+              dataDisplayCanvas.innerHTML = d.properties.early_marriage.toString() + '%' ;
+              this.style.fill = 'gray';
+            })
+            .on('mouseleave', function(d,i){
+              legendCanvas.innerHTML  = "";
+              dataDisplayCanvas.innerHTML = "";
+              this.style.fill = fillColor(d);
+            });
+          })
+      });
+
+
+    function fillColor(feature) {
+
+      var color = d3.scaleLinear()
+                        .domain([0, 50, 100])
+                        .range([d3.rgb("#E8F8F5"),  d3.rgb("#CC661B") , d3.rgb("#4C1B1B")]);
+      var property = 'early_marriage';
+      opacity = feature.properties[property];
+      return color(opacity)
+    }
+
+    function geoProjection(projectionName){
+      if (!projectionNames.includes(projectionName)){
+        throw new Error;
+      }
+      if (projectionName == 'Mercator'){
+
+          var width = 1024,
+              height = 700;
+
+          var svg = d3.select('#map')
+                  .append('svg')
+                  .attr('viewBox', '20000 2450 5200 100')
+                  .attr('width', width)
+                  .attr('height', height);
+
+          var projectionFunction = d3.geoMercator();
+        return { width, height, svg, projectionFunction }
+      }
+
+      if (projectionName == 'Orthographic'){
+
+        var width = 1024,
+              height = 700;
+
+        var svg = d3.select('#map')
+                .append('svg')
+                .attr('viewBox', '18500 2500 5000 1')
+                .attr('width', width)
+                .attr('height', height)
+
+        var projectionFunction = d3.geoOrthographic();
+        return { width, height, svg, projectionFunction }
+      }
+    };
+   </script>
+
+
+
+</html>
