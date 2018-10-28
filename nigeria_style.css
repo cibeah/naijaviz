@@ -69,7 +69,7 @@ body:before {
 
 #map{
 	display: inline-block;
-	width:65%;
+	width:60%;
 	height: 650px;
 	margin:0px;
 	padding:0px;
@@ -82,7 +82,7 @@ body:before {
 #map {
 	transform:
 		scale(0.9)
-		translate(0%,-5%);
+		translate(0%,-20%);
 }
 
 .footer {
@@ -92,27 +92,38 @@ body:before {
 	text-align: center;
 }
 
-#colorLegend {
-	width:2%;
+
+#svgLegend {
+	display: inline-block;
+}
+#colorLegend  {
+	width:3%;
 	display: inline-block;
 	margin:auto;
-	height:80%;
-
-
+	height:5%;
 }
 
-
-#colorScaleLegend {
+.colorScaleLegendText {
 	display: inline-block;
-	fill : url(#linear-gradient);
+	margin:auto;
+	width : 25%;
+	text-align: center;
+	font-weight: bold;
+	position: absolute;
+	top:37%;
+}
+
+.colorScaleLegendTextTick{
+	font-size:10px;
+	color:black;
+	display:block;
+}
+.colorScaleLegend {
+	display: inline-block;
 	margin:auto;
 	width : 50%;
 	height : 60%; 
+	fill : url(#linear-gradient);
 	ry:10;
-	z-index:23456789;
-	float:left;
-
-
 
 }
-

@@ -10,12 +10,40 @@
 <body>
   <h1> Nigeria : mapping a country's divides </h1>
   <div id ='main '>
+    <div id = 'colorLegend' >
+    <svg  id = 'svgLegend' viewBox="-60 0 100 1800" transform = "translate(130,0) scale(0.5)" >
+       <rect  class = 'colorScaleLegend ' ></rect> 
+    </svg>
+    <div  class = ' colorScaleLegendText ' transform = "translate(130,0)"  > 
+         <div  class = 'colorScaleLegendTextTick '  > 
+          - 100 %
+         </div>
+         <br>
+         <br>
+         <br>
+         <br>
+         <br>
+         <br>
+         <br>
+         <div  class = 'colorScaleLegendTextTick'  > 
+          - 50 %
+         </div>
+         <br>
+         <br>
+         <br>
+         <br>
+         <br>
+         <div  class = 'colorScaleLegendTextTick'  > 
+          - 0 %
+         </div>
+    </div>
+   </div>
+    
+    
     <div id='map' >
     
     </div>
-    <svg id = 'colorLegend' viewBox="0 0 100 1800" >
-     <rect  id = 'colorScaleLegend' ></rect>
-    </svg>
+
     <div id = 'side_bar'>
       <div class = 'select'>
         Choose a projection : 
@@ -25,9 +53,10 @@
           </select>
         Choose a socio-economic metric : 
           <select id = "metricSelect">
+            <option disabled selected value> -- select an option -- </option>
             <option value="earlyMarriage">Early Marriage</option>
             <option value="literacy">Literacy</option>
-            <optgroup label="education">
+            <optgroup label="Education">
               <option value="graduates">Higher Education</option>
               <option value="school">School Attendance</option>
              </optgroup>
@@ -96,22 +125,16 @@
 
         mapCanvas.innerHTML =  "";
         titleDisplayCanvas.innerHTML = "";
-        console.log(metricSelecta.options[metricSelecta.selectedIndex].text)
         var metric = metricSelecta.options[metricSelecta.selectedIndex].value
-        var newTitle = titles.get(metric);
+        console.log(metric)
+
+        var newTitle = (metric == '') ? '' : titles.get(metric);
         var newData = datasets.get(metric);
+        console.log(newData);
         console.log(newTitle);
         titleDisplayCanvas.innerHTML = newTitle;
 
-
-        // console.log(selection)
-        console.log(selection.target.id)
-
         var projectionType = projectionNames[projSelecta.selectedIndex] 
-        
-        
-
-
         var  { width, height, svg, projectionFunction } = geoProjection(projectionType);
         var canvas = svg.append('g');
 
@@ -121,11 +144,8 @@
                   .center( [-17.21, 4.02])
                   .translate( [width*3.5,height*6] );
 
-        
-
         var geoPath = d3.geoPath()
                         .projection(projection);
-
 
         var data = d3.csv(newData, function(m){
                   return {
@@ -135,7 +155,6 @@
                 })
 
         var geo = d3.json('data/nigeria_regions.json', ( d ) => d)
-
 
         return Promise
           .all([data,geo])
