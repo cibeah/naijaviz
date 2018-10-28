@@ -91,16 +91,16 @@
 
   <script>
     var keyValueTitles = [["earlyMarriage", "Percentage of Women aged 15 - 19 currently married (2007)"],
-                          ["literacy", "valeur2"],
+                          ["literacy", "Adult Literacy in Any Language (2010)"],
                           ["graduates", "valeur3"],
-                          ["school", "valeur4"],
-                          ["poverty", "valeur5"]];
+                          ["school", "Net secondary school attendance rate (2007)"],
+                          ["poverty", "Percentage living with less than a dollar per day, based on an adjusted PPP Poor (2010)"]];
 
     var keyValueData = [["earlyMarriage", "data/nigeria_early_marriage.csv"],
-                          ["literacy", "data/nigeria_early_marriage.csv"],
+                          ["literacy", "data/nigeria_literacy.csv"],
                           ["graduates", "data/nigeria_early_marriage.csv"],
-                          ["school", "data/nigeria_early_marriage.csv"],
-                          ["poverty", "data/nigeria_early_marriage.csv"]];
+                          ["school", "data/nigeria_secondary_school.csv"],
+                          ["poverty", "data/nigeria_poverty_ppp.csv"]];
     var titles = new Map(keyValueTitles);
     var datasets = new Map(keyValueData);
     console.log(titles)
