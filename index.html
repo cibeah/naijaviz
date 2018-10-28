@@ -66,7 +66,14 @@
                           ["graduates", "valeur3"],
                           ["school", "valeur4"],
                           ["poverty", "valeur5"]];
+
+    var keyValueData = [["earlyMarriage", "data/nigeria_early_marriage.csv"],
+                          ["literacy", "data/nigeria_early_marriage.csv"],
+                          ["graduates", "data/nigeria_early_marriage.csv"],
+                          ["school", "data/nigeria_early_marriage.csv"],
+                          ["poverty", "data/nigeria_early_marriage.csv"]];
     var titles = new Map(keyValueTitles);
+    var datasets = new Map(keyValueData);
     console.log(titles)
 
     var projectionNames = ['Mercator','Orthographic']
@@ -92,6 +99,7 @@
         console.log(metricSelecta.options[metricSelecta.selectedIndex].text)
         var metric = metricSelecta.options[metricSelecta.selectedIndex].value
         var newTitle = titles.get(metric);
+        var newData = datasets.get(metric);
         console.log(newTitle);
         titleDisplayCanvas.innerHTML = newTitle;
 
@@ -119,7 +127,7 @@
                         .projection(projection);
 
 
-        var data = d3.csv('data/nigeria_early_marriage.csv', function(m){
+        var data = d3.csv(newData, function(m){
                   return {
                     name : m.region,
                     value : parseInt(m.Value)
