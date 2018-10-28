@@ -13,8 +13,9 @@
     <div id='map' >
     
     </div>
-
-
+    <svg id = 'colorLegend' viewBox="0 0 100 1800" >
+     <rect  id = 'colorScaleLegend' ></rect>
+    </svg>
     <div id = 'side_bar'>
       <div class = 'select'>
         Choose a projection : 
@@ -22,16 +23,25 @@
             <option value="Mercator">Mercator</option>
             <option value="Orthographic">Orthographic</option>
           </select>
+        Choose a socio-economic metric : 
+          <select id = "metricSelect">
+            <option value="earlyMarriage">Early Marriage</option>
+            <option value="literacy">Literacy</option>
+            <optgroup label="education">
+              <option value="graduates">Higher Education</option>
+              <option value="school">School Attendance</option>
+             </optgroup>
+            <option value="poverty">Poverty</option>
+          </select>
         </div>
 
         <div id='info'>
           <h2 id='title' >
-          Percentage of Women aged 15 - 19 currently married 
+          
           </h2>
 
           <h3 id='legend' >  </h3>
           <h1 id='dataDisplay' >  </h1>
-          <h1 id='colorScaleLegend' >  </h1>
       
         </div>
     </div>
@@ -51,18 +61,47 @@
 </footer>
 
   <script>
+    var keyValueTitles = [["earlyMarriage", "Percentage of Women aged 15 - 19 currently married (2007)"],
+                          ["literacy", "valeur2"],
+                          ["graduates", "valeur3"],
+                          ["school", "valeur4"],
+                          ["poverty", "valeur5"]];
+    var titles = new Map(keyValueTitles);
+    console.log(titles)
 
     var projectionNames = ['Mercator','Orthographic']
 
-    var selecta = document.getElementById("projectionSelect");
+    var projSelecta = document.getElementById("projectionSelect");
+    var metricSelecta = document.getElementById("metricSelect");
     var mapCanvas = document.getElementById('map');
     var legendCanvas = document.getElementById('legend');
     var dataDisplayCanvas = document.getElementById('dataDisplay');
+    var titleDisplayCanvas = document.getElementById('title');
 
-    selecta.addEventListener("change", function(){
-        var projectionType = projectionNames[this.selectedIndex] 
+    projSelecta.addEventListener("change", displaySelection);
+    metricSelecta.addEventListener("change", displaySelection);
+
+
+
+
+
+      function displaySelection (selection) {
+
         mapCanvas.innerHTML =  "";
+        titleDisplayCanvas.innerHTML = "";
+        console.log(metricSelecta.options[metricSelecta.selectedIndex].text)
+        var metric = metricSelecta.options[metricSelecta.selectedIndex].value
+        var newTitle = titles.get(metric);
+        console.log(newTitle);
+        titleDisplayCanvas.innerHTML = newTitle;
 
+
+        // console.log(selection)
+        console.log(selection.target.id)
+
+        var projectionType = projectionNames[projSelecta.selectedIndex] 
+        
+        
 
 
         var  { width, height, svg, projectionFunction } = geoProjection(projectionType);
@@ -93,23 +132,17 @@
         return Promise
           .all([data,geo])
           .then( ( [data,geo] )=>{
-            console.log(data);
 
             var mapValues = new Map();
 
             data.forEach( (entry) => {
               mapValues.set(entry.name , entry.value)
             })
-
-            console.log(mapValues);
-            
-
             var states = geo.features.map( (el) => el.properties.ID);
 
             // Add the the data values in the features : 
 
             geo.features.forEach( (feature) => {
-              console.log(feature.properties);
 
               if ( feature.properties.ID == 'Federal Capital Territory' ){
                 feature.properties.early_marriage = mapValues.get('Abuja');  
@@ -121,7 +154,6 @@
             var selection = canvas.selectAll( "path" )
                                   .data(geo.features );
 
-            console.log(selection);
 
             selection
             .enter()
@@ -142,8 +174,38 @@
               dataDisplayCanvas.innerHTML = "";
               this.style.fill = fillColor(d);
             });
+
+             // Preparing the legend :
+            var defs = svg.append("defs");
+            var linearGradient = defs
+                            .append("linearGradient")
+                            .attr("id", "linear-gradient");
+            linearGradient
+              .attr("x1", "0%")
+              .attr("y1", "0%")
+              .attr("x2", "0%")
+              .attr("y2", "100%");
+
+            //Set the colors of the gradient 
+            linearGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "#E8F8F5"); 
+
+            linearGradient.append("stop")
+                .attr("offset", "50%")
+                .attr("stop-color", "#CC661B");
+
+            linearGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "#4C1B1B");
+
+            // d3
+            // .select('#colorScaleLegend')
+            // .attr('fill', 'url(#linear-gradient)')
+
+
           })
-      });
+      };
 
 
     function fillColor(feature) {

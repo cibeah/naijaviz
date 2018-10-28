@@ -79,7 +79,7 @@ body:before {
 	font-size:90px;
 }
 
-svg {
+#map {
 	transform:
 		scale(0.9)
 		translate(0%,-5%);
@@ -91,3 +91,28 @@ svg {
 	margin:auto;
 	text-align: center;
 }
+
+#colorLegend {
+	width:2%;
+	display: inline-block;
+	margin:auto;
+	height:80%;
+
+
+}
+
+
+#colorScaleLegend {
+	display: inline-block;
+	fill : url(#linear-gradient);
+	margin:auto;
+	width : 50%;
+	height : 60%; 
+	ry:10;
+	z-index:23456789;
+	float:left;
+
+
+
+}
+
